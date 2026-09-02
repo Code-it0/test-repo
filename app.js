@@ -6,7 +6,7 @@ const statusText = document.getElementById("status");
 // YOUR BACKEND URLS
 // --------------------------------------------------
 
-const BACKEND_URL = "https://YOUR-BACKEND.com";
+const BACKEND_URL = "https://test-repo-hxl2.onrender.com";
 
 // Your public VAPID key from the backend
 const VAPID_PUBLIC_KEY =
