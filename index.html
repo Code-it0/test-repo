@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Phone Notification</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            padding: 30px;
+
+            text-align: center;
+
+            background: #1d1d1d;
+            border-radius: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+
+            border: none;
+            border-radius: 10px;
+
+            background: #fff;
+            color: #111;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>📱 Phone Notification</h1>
+
+        <p>
+            Connect this browser to your phone.
+        </p>
+
+        <button id="enableBtn">
+            Enable Notifications
+        </button>
+
+        <button id="notifyBtn" disabled>
+            Send Notification
+        </button>
+
+        <div id="status">
+            Not connected
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
