@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Phone Notification</title>
+    <title>Paired Notifications</title>
 
     <style>
         * {
@@ -65,10 +65,100 @@
             cursor: not-allowed;
         }
 
+        button.secondary {
+            background: #333;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-selector button {
+            flex: 1;
+            padding: 10px;
+            margin: 0;
+            background: #333;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .mode-selector button.active {
+            background: #fff;
+            color: #111;
+        }
+
         #status {
             margin-top: 20px;
             font-size: 14px;
             color: #aaa;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* PC Mode styles */
+        #pc-mode {
+            text-align: center;
+        }
+
+        .pairing-code-display {
+            margin: 20px 0;
+            padding: 20px;
+            background: #2d2d2d;
+            border-radius: 10px;
+        }
+
+        .pairing-code {
+            font-size: 32px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #4ade80;
+            letter-spacing: 4px;
+            margin: 10px 0;
+        }
+
+        .qr-code {
+            margin: 20px auto;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .qr-code img {
+            display: block;
+        }
+
+        /* Phone Mode styles */
+        #phone-mode {
+            text-align: center;
+        }
+
+        .pairing-input-group {
+            margin: 20px 0;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .divider {
+            color: #666;
+            margin: 15px 0;
         }
     </style>
 </head>
@@ -77,26 +167,80 @@
 
     <div class="container">
 
-        <h1>📱 Phone Notification</h1>
+        <h1>🔗 Paired Notifications</h1>
 
-        <p>
-            Connect this browser to your phone.
-        </p>
+        <div class="mode-selector">
+            <button id="pcModeBtn" class="active">💻 PC</button>
+            <button id="phoneModeBtn">📱 Phone</button>
+        </div>
 
-        <button id="enableBtn">
-            Enable Notifications
-        </button>
+        <!-- PC Mode -->
+        <div id="pc-mode">
+            <p>Share the code or QR with your phone to pair.</p>
 
-        <button id="notifyBtn" disabled>
-            Send Notification
-        </button>
+            <div id="pairing-not-started" class="hidden">
+                <button id="generatePairBtn">Generate Pairing Code</button>
+            </div>
 
-        <div id="status">
-            Not connected
+            <div id="pairing-display" class="hidden">
+                <div class="pairing-code-display">
+                    <p>Pairing Code:</p>
+                    <div class="pairing-code" id="pairCode">------</div>
+                    <p style="font-size: 12px; color: #666; margin-top: 10px;">Expires in 15 minutes</p>
+                </div>
+
+                <div class="qr-code">
+                    <img id="qrImage" src="" alt="QR Code" />
+                </div>
+
+                <p style="font-size: 12px; color: #666;">
+                    Waiting for phone to pair...
+                </p>
+
+                <button id="regenerateBtn" class="secondary">Regenerate Code</button>
+            </div>
+
+            <button id="enableBtn" class="hidden">Enable Notifications (PC)</button>
+            <button id="notifyBtn" class="hidden" disabled>Send Notification</button>
+
+            <div id="pc-status" class="hidden"></div>
+        </div>
+
+        <!-- Phone Mode -->
+        <div id="phone-mode" class="hidden">
+            <p>Enter the pairing code from your PC.</p>
+
+            <div class="pairing-input-group">
+                <input 
+                    type="text" 
+                    id="pairingCodeInput" 
+                    placeholder="Enter 6-digit code" 
+                    maxlength="6" 
+                />
+                <button id="submitPairCodeBtn">Pair & Continue</button>
+            </div>
+
+            <div class="divider">— or —</div>
+
+            <button id="scanQrBtn">📸 Scan QR Code</button>
+            <div id="qr-scanner" class="hidden" style="margin-top: 20px;">
+                <video id="video" style="width: 100%; border-radius: 10px;"></video>
+                <button id="stopScanBtn" class="secondary" style="margin-top: 10px;">Stop Scanning</button>
+            </div>
+
+            <button id="phoneEnableBtn" class="hidden" style="margin-top: 20px;">Enable Notifications (Phone)</button>
+
+            <div id="phone-status" class="hidden" style="margin-top: 20px;"></div>
+        </div>
+
+        <div id="status" style="margin-top: 20px; font-size: 14px; color: #aaa;">
+            Select your device type to begin.
         </div>
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="app.js"></script>
 
 </body>
