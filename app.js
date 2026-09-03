@@ -10,7 +10,7 @@ const BACKEND_URL = "https://test-repo-hxl2.onrender.com/";
 
 // Your public VAPID key from the backend
 const VAPID_PUBLIC_KEY =
-    "YOUR_PUBLIC_VAPID_KEY_HERE";
+    "BP-6bQcdt6TsbV7AHUtimGALJfanLWRNa_tQoIMUX1lv2QxG3juQ7PbS-HUf6XoU-bGN9dtAx8mXFMb5znwlUbw";
 
 
 // --------------------------------------------------
