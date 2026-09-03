@@ -99,15 +99,15 @@ async function enableNotifications() {
         // Create subscription if necessary
         if (!subscription) {
 
+            const appKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+            console.log('applicationServerKey length:', appKey.length, appKey);
+
             subscription =
                 await registration.pushManager.subscribe({
 
                     userVisibleOnly: true,
 
-                    applicationServerKey:
-                        urlBase64ToUint8Array(
-                            VAPID_PUBLIC_KEY
-                        )
+                    applicationServerKey: appKey
                 });
         }
 
