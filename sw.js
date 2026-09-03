@@ -26,11 +26,11 @@ self.addEventListener(
 
             icon:
                 data.icon ||
-                "/icon.png",
+                "icon.png",
 
             badge:
                 data.badge ||
-                "/badge.png",
+                "badge.png",
 
             data:
                 data.url || "/"
