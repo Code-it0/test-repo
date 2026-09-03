@@ -6,7 +6,7 @@ const statusText = document.getElementById("status");
 // YOUR BACKEND URLS
 // --------------------------------------------------
 
-const BACKEND_URL = "https://test-repo-hxl2.onrender.com/";
+const BACKEND_URL = "https://test-repo-hxl2.onrender.com";
 
 // Your public VAPID key from the backend
 const VAPID_PUBLIC_KEY =
@@ -119,29 +119,15 @@ async function enableNotifications() {
 
 
         // Send subscription to backend
-        const response =
-            await fetch(
-                `${BACKEND_URL}/subscribe`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        subscription:
-                            subscription
-                    })
-                }
-            );
-
+        const response = await fetch(`${BACKEND_URL}/subscribe`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ subscription: subscription })
+        });
 
         if (!response.ok) {
-            throw new Error(
-                "Backend rejected subscription."
-            );
+            const body = await response.text().catch(() => "<no body>");
+            throw new Error(`Backend rejected subscription (status ${response.status}): ${body}`);
         }
 
 
