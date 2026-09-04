@@ -31,7 +31,7 @@ const pairingDisplay = document.getElementById("pairing-display");
 const generatePairBtn = document.getElementById("generatePairBtn");
 const regenerateBtn = document.getElementById("regenerateBtn");
 const pairCodeDisplay = document.getElementById("pairCode");
-const qrImage = document.getElementById("qrImage");
+const qrContainer = document.getElementById("qrContainer");
 const enableBtn = document.getElementById("enableBtn");
 const notifyBtn = document.getElementById("notifyBtn");
 const pcStatus = document.getElementById("pc-status");
@@ -47,6 +47,7 @@ const phoneEnableBtn = document.getElementById("phoneEnableBtn");
 const phoneStatus = document.getElementById("phone-status");
 
 let qrScannerActive = false;
+let pairStatusTimer = null;
 
 // --------------------------------------------------
 // Utility: Convert VAPID key
@@ -120,7 +121,6 @@ async function generatePairingCode() {
         // Generate QR code. qrcodejs renders directly into the QR container.
         const qrUrl = `${window.location.origin}/?pair=${currentPairCode}`;
         if (typeof QRCode !== "undefined") {
-            const qrContainer = qrImage.parentElement;
             qrContainer.innerHTML = "";
             new QRCode(qrContainer, {
                 text: qrUrl,
@@ -138,6 +138,7 @@ async function generatePairingCode() {
         enableBtn.classList.remove("hidden");
 
         statusText.textContent = "✅ Pairing code generated. Show this to your phone.";
+        startPairStatusPolling();
     } catch (error) {
         console.error(error);
         statusText.textContent = "❌ " + error.message;
@@ -146,12 +147,43 @@ async function generatePairingCode() {
 }
 
 async function regeneratePairingCode() {
+    stopPairStatusPolling();
     pairingDisplay.classList.add("hidden");
     pairingNotStarted.classList.remove("hidden");
     enableBtn.classList.add("hidden");
     currentPairId = null;
     currentPairCode = null;
     generatePairingCode();
+}
+
+function startPairStatusPolling() {
+    stopPairStatusPolling();
+    pollPairStatus();
+    pairStatusTimer = setInterval(pollPairStatus, 3000);
+}
+
+function stopPairStatusPolling() {
+    if (pairStatusTimer) {
+        clearInterval(pairStatusTimer);
+        pairStatusTimer = null;
+    }
+}
+
+async function pollPairStatus() {
+    if (!currentPairId || currentRole !== "pc") return;
+
+    try {
+        const response = await fetch(`${BACKEND_URL}/pair-status/${currentPairId}`);
+        if (!response.ok) return;
+
+        const status = await response.json();
+        if (status.phoneConnected) {
+            statusText.textContent = "✅ Phone paired. PC is ready to send notifications.";
+            stopPairStatusPolling();
+        }
+    } catch (error) {
+        console.warn("Could not check pair status:", error);
+    }
 }
 
 generatePairBtn.addEventListener("click", generatePairingCode);
@@ -411,11 +443,10 @@ function checkURLForPairingCode() {
     }
 }
 
-checkURLForPairingCode();
-
 // --------------------------------------------------
 // Initialize
 // --------------------------------------------------
 
 setMode("pc");
+checkURLForPairingCode();
 

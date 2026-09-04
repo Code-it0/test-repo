@@ -126,6 +126,17 @@ app.get("/resolve-pair-code/:code", (req, res) => {
     res.json({ pairId: pairData.pairId, expiresAt: pairData.expiresAt });
 });
 
+// PC uses this to learn when the phone has subscribed to the same pair.
+app.get("/pair-status/:pairId", (req, res) => {
+    const subs = loadSubscriptions();
+    const pairSubscriptions = subs.filter((sub) => sub.pairId === req.params.pairId);
+
+    res.json({
+        pcConnected: pairSubscriptions.some((sub) => sub.role === "pc"),
+        phoneConnected: pairSubscriptions.some((sub) => sub.role === "phone")
+    });
+});
+
 // Phone (or PC) calls this once after granting notification permission.
 // Now requires pairId and role in the request body.
 app.post("/subscribe", (req, res) => {
@@ -145,23 +156,25 @@ app.post("/subscribe", (req, res) => {
 
     const subs = loadSubscriptions();
 
-    // Avoid storing duplicates of the same endpoint
-    const alreadyExists = subs.some(
-        (s) => s.endpoint === subscription.endpoint
+    // Replace an existing endpoint so it can move to a new pair or role.
+    const subscriptionIndex = subs.findIndex(
+        (s) => (s.subscription?.endpoint || s.endpoint) === subscription.endpoint
     );
+    const storedSubscription = {
+        subscription,
+        pairId,
+        role,
+        subscribedAt: new Date().toISOString()
+    };
 
-    if (!alreadyExists) {
-        // Store subscription with pairId and role
-        subs.push({
-            subscription,
-            pairId,
-            role,
-            subscribedAt: new Date().toISOString()
-        });
+    if (subscriptionIndex === -1) {
+        subs.push(storedSubscription);
         saveSubscriptions(subs);
         console.log(`New subscription stored. PairId: ${pairId}, Role: ${role}, Total: ${subs.length}`);
     } else {
-        console.log("Subscription already existed.");
+        subs[subscriptionIndex] = storedSubscription;
+        saveSubscriptions(subs);
+        console.log(`Subscription updated. PairId: ${pairId}, Role: ${role}`);
     }
 
     res.status(201).json({ success: true, pairId });
