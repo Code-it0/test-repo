@@ -117,17 +117,20 @@ async function generatePairingCode() {
         // Display pairing code
         pairCodeDisplay.textContent = currentPairCode;
 
-        // Generate QR code
+        // Generate QR code. qrcodejs renders directly into the QR container.
         const qrUrl = `${window.location.origin}/?pair=${currentPairCode}`;
-        QRCode.toDataURL(qrUrl, {
-            errorCorrectionLevel: "H",
-            type: "image/png",
-            quality: 0.95,
-            margin: 1,
-            width: 300,
-        }).then(url => {
-            qrImage.src = url;
-        });
+        if (typeof QRCode !== "undefined") {
+            const qrContainer = qrImage.parentElement;
+            qrContainer.innerHTML = "";
+            new QRCode(qrContainer, {
+                text: qrUrl,
+                width: 300,
+                height: 300,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        } else {
+            console.warn("QR library did not load. The pairing code is still available above.");
+        }
 
         // Show pairing display
         pairingNotStarted.classList.add("hidden");
